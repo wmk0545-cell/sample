@@ -531,60 +531,62 @@ export default function CardGamePage() {
           </div>
         )}
 
-        {/* 단계 3: 완료 팝업 모달 */}
+        {/* 단계 3: 완료 팝업 모달 (완전 불투명 및 개인정보/시간 제거) */}
         {phase === "COMPLETED" && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-            <Card className="w-full max-w-sm sm:max-w-md bg-card border-border shadow-2xl rounded-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-              <div className="bg-gradient-to-r from-rose-400/90 to-amber-300/90 dark:from-zinc-800 dark:to-zinc-700 p-6 text-center text-white relative">
-                <div className="w-16 h-16 mx-auto rounded-full bg-white/20 dark:bg-black/20 backdrop-blur-sm flex items-center justify-center border border-white/40 shadow-sm mb-2">
-                  <Trophy className="w-8 h-8 text-yellow-300 fill-yellow-400 drop-shadow" />
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 animate-in fade-in duration-200">
+            <div className="w-full max-w-sm sm:max-w-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-2xl rounded-2xl overflow-hidden animate-in zoom-in-95 duration-200 text-foreground">
+              {/* 상단 축하 배너 (완전 불투명) */}
+              <div className="bg-gradient-to-r from-rose-400 via-pink-400 to-amber-300 dark:from-zinc-800 dark:to-zinc-800 p-6 text-center text-white relative">
+                <div className="w-16 h-16 mx-auto rounded-full bg-white/30 dark:bg-black/30 flex items-center justify-center border border-white/50 shadow-md mb-2">
+                  <Trophy className="w-8 h-8 text-yellow-200 fill-yellow-300 drop-shadow" />
                 </div>
-                <h2 className="text-2xl font-black tracking-tight text-white">
+                <h2 className="text-2xl font-black tracking-tight text-white drop-shadow-sm">
                   축하합니다! 미션 완료! 🎉
                 </h2>
-                <p className="text-white/90 text-xs mt-1">모든 먼작귀 친구들을 다 찾았어요!</p>
+                <p className="text-white/95 text-xs mt-1">모든 먼작귀 친구들을 다 찾았어요!</p>
               </div>
 
-              <CardContent className="p-5 space-y-3">
-                <div className="bg-secondary/70 rounded-xl p-3.5 border border-border/60 space-y-2.5">
-                  <div className="flex justify-between items-center text-xs sm:text-sm">
-                    <span className="text-muted-foreground font-medium">플레이어:</span>
-                    <span className="text-foreground font-bold text-sm sm:text-base">{userName}</span>
+              {/* 본문 콘텐츠 (완전 불투명 배경) */}
+              <div className="p-5 space-y-3 bg-white dark:bg-zinc-900">
+                <div className="bg-zinc-50 dark:bg-zinc-800/80 rounded-xl p-4 border border-zinc-200/80 dark:border-zinc-700/80 space-y-3">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-zinc-600 dark:text-zinc-400 font-medium">플레이어:</span>
+                    <span className="text-zinc-900 dark:text-zinc-100 font-bold text-base">{userName}</span>
                   </div>
-                  <div className="flex justify-between items-center text-xs sm:text-sm border-t border-border/60 pt-2">
-                    <span className="text-muted-foreground font-medium">총 소요 시간:</span>
-                    <span className="text-primary font-black text-lg sm:text-xl font-mono">
-                      {finalTimeStr || formatTime(elapsedSeconds)}
+                  <div className="flex justify-between items-center text-sm border-t border-zinc-200 dark:border-zinc-700 pt-2.5">
+                    <span className="text-zinc-600 dark:text-zinc-400 font-medium">최종 달성 점수:</span>
+                    <span className="text-pink-600 dark:text-pink-400 font-black text-xl font-mono">
+                      {Math.max(10, 1000 - turns * 20)}점
                     </span>
                   </div>
-                  <div className="flex justify-between items-center text-xs sm:text-sm border-t border-border/60 pt-2">
-                    <span className="text-muted-foreground font-medium">총 뒤집은 횟수:</span>
-                    <span className="text-foreground font-bold">{turns} 회</span>
+                  <div className="flex justify-between items-center text-sm border-t border-zinc-200 dark:border-zinc-700 pt-2.5">
+                    <span className="text-zinc-600 dark:text-zinc-400 font-medium">총 뒤집은 횟수:</span>
+                    <span className="text-zinc-800 dark:text-zinc-200 font-bold">{turns} 회</span>
                   </div>
                   {/* 구글 시트 자동 저장 상태 안내 */}
-                  <div className="flex justify-between items-center text-xs border-t border-border/60 pt-2 text-muted-foreground">
-                    <span>구글 시트 기록:</span>
+                  <div className="flex justify-between items-center text-xs border-t border-zinc-200 dark:border-zinc-700 pt-2 text-zinc-500">
+                    <span>구글 시트 저장:</span>
                     <span className="font-semibold">
                       {sheetSaveStatus === "SAVING" && (
                         <span className="text-amber-500 animate-pulse">전송 중...</span>
                       )}
                       {sheetSaveStatus === "SAVED" && (
-                        <span className="text-emerald-500 font-bold">✓ 저장 완료</span>
+                        <span className="text-emerald-600 dark:text-emerald-400 font-bold">✓ 저장 완료</span>
                       )}
                       {sheetSaveStatus === "ERROR" && (
                         <span className="text-rose-500">저장 실패</span>
                       )}
-                      {sheetSaveStatus === "IDLE" && <span>설정 없음</span>}
+                      {sheetSaveStatus === "IDLE" && <span>완료</span>}
                     </span>
                   </div>
                 </div>
 
-                {/* 🏆 구글 시트 명예의 전당 TOP 3 랭킹 (종료시간 오름차순) */}
-                <div className="bg-amber-50/70 dark:bg-amber-950/20 rounded-xl p-3.5 border border-amber-200/70 dark:border-amber-900/40 space-y-2">
+                {/* 🏆 구글 시트 명예의 전당 TOP 3 랭킹 (종료시간/날짜 노출 없이 순위/이름/점수만 표시) */}
+                <div className="bg-amber-50/90 dark:bg-zinc-800 rounded-xl p-3.5 border border-amber-200 dark:border-zinc-700 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
+                    <span className="text-xs font-bold text-amber-950 dark:text-amber-200 flex items-center gap-1.5">
                       <Trophy className="w-3.5 h-3.5 text-amber-500 fill-amber-400" />
-                      명예의 전당 (가장 빠른 TOP 3)
+                      명예의 전당 (TOP 3 랭킹)
                     </span>
                     {loadingRankings && (
                       <span className="text-[10px] text-amber-600 animate-pulse">갱신 중...</span>
@@ -598,10 +600,10 @@ export default function CardGamePage() {
                         return (
                           <div
                             key={item.rank}
-                            className={`flex items-center justify-between text-xs px-2.5 py-1.5 rounded-lg transition-all ${
+                            className={`flex items-center justify-between text-xs px-2.5 py-2 rounded-lg ${
                               isCurrent
-                                ? "bg-amber-200/70 dark:bg-amber-900/50 font-bold text-amber-950 dark:text-amber-100 ring-1 ring-amber-400"
-                                : "bg-white/60 dark:bg-black/20 text-foreground"
+                                ? "bg-amber-200/90 dark:bg-amber-950/60 font-bold text-amber-950 dark:text-amber-100 border border-amber-400"
+                                : "bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 border border-zinc-200/60 dark:border-zinc-800"
                             }`}
                           >
                             <div className="flex items-center gap-2">
@@ -611,52 +613,50 @@ export default function CardGamePage() {
                                     ? "bg-amber-400 text-amber-950 shadow-sm"
                                     : item.rank === 2
                                     ? "bg-slate-300 text-slate-800"
-                                    : "bg-amber-700/60 text-white"
+                                    : "bg-amber-700 text-white"
                                 }`}
                               >
                                 {item.rank}
                               </span>
-                              <span className="truncate max-w-[110px]">{item.name}</span>
+                              <span className="truncate max-w-[120px] font-medium">{item.name}</span>
                               {isCurrent && (
-                                <span className="text-[9px] bg-primary text-primary-foreground px-1 py-0.2 rounded font-semibold">
-                                  YOU
+                                <span className="text-[9px] bg-pink-500 text-white px-1 py-0.2 rounded font-bold">
+                                  MY
                                 </span>
                               )}
                             </div>
-                            <div className="flex items-center gap-2 font-mono">
-                              <span className="font-bold text-primary">{item.finishtime}</span>
-                              <span className="text-[10px] text-muted-foreground font-sans">
-                                ({item.score}점)
-                              </span>
+                            <div className="flex items-center font-bold text-pink-600 dark:text-pink-400 font-mono text-xs">
+                              {item.score}점
                             </div>
                           </div>
                         );
                       })}
                     </div>
                   ) : (
-                    <div className="text-center py-2 text-xs text-muted-foreground">
+                    <div className="text-center py-2 text-xs text-zinc-500 dark:text-zinc-400">
                       {loadingRankings ? "랭킹을 불러오는 중입니다..." : "랭킹 기록이 없습니다."}
                     </div>
                   )}
                 </div>
-              </CardContent>
+              </div>
 
-              <CardFooter className="p-5 pt-0 flex flex-col sm:flex-row gap-2">
+              {/* 하단 버튼 (완전 불투명) */}
+              <div className="p-5 pt-0 bg-white dark:bg-zinc-900 flex flex-col sm:flex-row gap-2">
                 <Button
                   onClick={() => startNewGame(true)}
-                  className="w-full font-bold h-10 text-sm"
+                  className="w-full font-bold h-11 text-sm bg-pink-500 hover:bg-pink-600 text-white shadow-sm"
                 >
                   <RotateCcw className="w-4 h-4 mr-1.5" /> 다시 플레이
                 </Button>
                 <Button
                   onClick={handleResetToHome}
                   variant="outline"
-                  className="w-full h-10 text-sm"
+                  className="w-full h-11 text-sm border-zinc-300 dark:border-zinc-700"
                 >
                   <HomeIcon className="w-4 h-4 mr-1.5" /> 처음으로
                 </Button>
-              </CardFooter>
-            </Card>
+              </div>
+            </div>
           </div>
         )}
       </main>

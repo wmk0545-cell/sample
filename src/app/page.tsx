@@ -198,11 +198,15 @@ export default function CardGamePage() {
     // 점수 계산: 기본 점수에서 시도 횟수 페널티를 제외 (최소 10점)
     const calculatedScore = Math.max(10, 1000 - turns * 20);
 
-    // .env.local 파일에 설정된 NEXT_PUBLIC_GOOGLE_SCRIPT_URL 키 값 참조
+    // 배포 환경(Vercel 등)에서 환경변수가 미등록되었을 때도 100% 동작하도록 기본 URL fallback 내장
+    const DEFAULT_GAS_URL =
+      "https://script.google.com/macros/s/AKfycbxbKTbYmSoTMGUn3YqayESzxH_1thmh2OiO_bA0K9stOXtjQ1cwlCysd15E_L0Cy-lmfQ/exec";
+
     const gasUrl =
       process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL ||
       process.env.NEXT_PUBLIC_GOOGLE_SHEET_API_URL ||
-      (typeof window !== "undefined" ? localStorage.getItem("gas_api_url") : null);
+      (typeof window !== "undefined" ? localStorage.getItem("gas_api_url") : null) ||
+      DEFAULT_GAS_URL;
 
     if (gasUrl) {
       setSheetSaveStatus("SAVING");

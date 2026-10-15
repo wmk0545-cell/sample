@@ -207,25 +207,68 @@ export default function CardGamePage() {
     if (gasUrl) {
       setSheetSaveStatus("SAVING");
       setLoadingRankings(true);
+
+      const payload = {
+        name: userName || "익명",
+        score: calculatedScore,
+        finishtime: finishtime24,
+      };
+
+      // 1. JSONP 방식으로 데이터 저장 및 즉시 TOP 3 랭킹 수신 (브라우저 CORS / 차단 우회에 가장 신뢰성 높음)
+      const sendViaJsonp = () => {
+        const callbackName = "gasSaveCb_" + Date.now();
+        const script = document.createElement("script");
+        const params = new URLSearchParams({
+          action: "save",
+          name: payload.name,
+          score: String(payload.score),
+          finishtime: payload.finishtime,
+          callback: callbackName,
+          t: String(Date.now()),
+        });
+        script.src = `${gasUrl}?${params.toString()}`;
+
+        (window as unknown as Record<string, (res: { status: string; top3?: RankingItem[] }) => void>)[callbackName] = (
+          res
+        ) => {
+          if (res && res.status === "success") {
+            setSheetSaveStatus("SAVED");
+            if (res.top3) {
+              setTopRankings(res.top3);
+            }
+          }
+          setLoadingRankings(false);
+          delete (window as unknown as Record<string, unknown>)[callbackName];
+          if (document.body.contains(script)) {
+            document.body.removeChild(script);
+          }
+        };
+
+        script.onerror = () => {
+          // JSONP 실패 시 일반 fetchTop3Rankings 시도
+          fetchTop3Rankings(gasUrl);
+          delete (window as unknown as Record<string, unknown>)[callbackName];
+          if (document.body.contains(script)) {
+            document.body.removeChild(script);
+          }
+        };
+
+        document.body.appendChild(script);
+      };
+
       try {
-        await fetch(gasUrl, {
+        // 2. 표준 POST 전송 (no-cors)도 병행 실행하여 저장 누락 완전 방지
+        fetch(gasUrl, {
           method: "POST",
-          mode: "no-cors", // Google Apps Script Web App CORS 제약 우회
+          mode: "no-cors",
           headers: {
             "Content-Type": "text/plain;charset=utf-8",
           },
-          body: JSON.stringify({
-            name: userName,
-            score: calculatedScore,
-            finishtime: finishtime24,
-          }),
-        });
-        setSheetSaveStatus("SAVED");
+          body: JSON.stringify(payload),
+        }).catch(() => {});
 
-        // 구글 시트에 행이 추가된 후, 최신 TOP 3 랭킹을 가져오기 (0.8초 딜레이)
-        setTimeout(() => {
-          fetchTop3Rankings(gasUrl);
-        }, 800);
+        // JSONP 실행
+        sendViaJsonp();
       } catch (err) {
         console.error("구글 앱스 스크립트 실행 실패:", err);
         setSheetSaveStatus("ERROR");
